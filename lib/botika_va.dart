@@ -57,6 +57,7 @@ class BotikaVa implements SseServiceHandler {
 
   void dispose() {
     _sseService.removeSseSubscriber("botika_va_$_uniqueInstanceId");
+    _sseService.dispose();
   }
 
   void sendMessage(String text) async {

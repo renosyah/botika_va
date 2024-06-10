@@ -1,7 +1,8 @@
+import 'package:botika_va/handlers/va_handler.dart';
+import 'package:botika_va/models/config.dart';
+import 'package:botika_va/models/webhook_model.dart';
+import 'package:botika_va/models/anima_model.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:botika_va/botika_va.dart';
 
 void main() {
@@ -15,36 +16,39 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _botikaVaPlugin = BotikaVa();
+class _MyAppState extends State<MyApp> implements BotikaVaHandler {
+  BotikaVa botikaVa = BotikaVa();
+  VaConfig vaConfig = VaConfig();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+
+    botikaVa.addSubscriber("MyController", this);
+    botikaVa.init("YOUR_USER_ID", vaConfig);
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion = await _botikaVaPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+  @override
+  void dispose() {
+    super.dispose();
+
+    botikaVa.removeSubscriber("MyController");
+    botikaVa.dispose();
+  }
+
+  @override
+  void onVaError(String message) {
+    // display error message
+  }
+
+  @override
+  void onVaResponse(MessageModel msg, List<DownloadVideoModel> videos) {
+    // display message get from : msg.value
+
+    for (DownloadVideoModel r in videos) {
+      // get data video by using : r.getUri()
+      // header can be obtain from : vaConfig.downloadHeaders!
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
@@ -53,9 +57,6 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
         ),
       ),
     );
