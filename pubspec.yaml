@@ -13,7 +13,6 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   flutter_client_sse: ^2.0.0
   http: ^0.13.5
-  uuid: ^4.1.0
   
 dev_dependencies:
   flutter_test:

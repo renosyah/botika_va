@@ -6,7 +6,6 @@ import 'package:botika_va/providers/anima_provider.dart';
 import 'package:botika_va/providers/webhook_provider.dart';
 import 'package:botika_va/services/sse_service.dart';
 import 'package:botika_va/utils/async_queue.dart';
-import 'package:uuid/uuid.dart';
 import 'botika_va_platform_interface.dart';
 
 class BotikaVa implements SseServiceHandler {
@@ -21,17 +20,17 @@ class BotikaVa implements SseServiceHandler {
 
   String? _userId;
   VaConfig? _config;
-  String? _uniqueInstanceId;
+  String? _uniqueId;
 
   BotikaVa() {
-    _uniqueInstanceId = const Uuid().v1();
+    _uniqueId = "$identityHashCode";
   }
 
   void init(String userId, VaConfig config) {
     _userId = userId;
     _config = config;
 
-    _sseService.addSseSubscriber("botika_va_$_uniqueInstanceId", this);
+    _sseService.addSseSubscriber("botika_va_$_uniqueId", this);
     _sseService.init(userId: userId, weebHookId: _config!.weebHookId ?? "");
   }
 
@@ -56,7 +55,7 @@ class BotikaVa implements SseServiceHandler {
   }
 
   void dispose() {
-    _sseService.removeSseSubscriber("botika_va_$_uniqueInstanceId");
+    _sseService.removeSseSubscriber("botika_va_$_uniqueId");
     _sseService.dispose();
   }
 
