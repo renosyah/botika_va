@@ -1,5 +1,4 @@
 import 'package:botika_va/utils/util.dart';
-import 'package:uuid/uuid.dart';
 
 class WebHookModel {
   String? id;
@@ -104,7 +103,7 @@ class MessageModel {
 
   MessageModel({this.time, this.type = "text", this.value}) {
     id = "${time}981m5Qqw";
-    uniqueID = const Uuid().v4();
+    uniqueID = "$identityHashCode";
   }
 
   MessageModel.fromJson(Map<String, dynamic> json) {
@@ -112,7 +111,7 @@ class MessageModel {
     time = json['time'];
     type = json['type'];
     value = json['value'];
-    uniqueID = const Uuid().v4();
+    uniqueID = "$identityHashCode";
 
     if (type == "text") {
       value = removeHtmlTagFromString("$value");
