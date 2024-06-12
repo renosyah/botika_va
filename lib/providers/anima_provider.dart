@@ -90,6 +90,7 @@ class AnimaProvider extends BaseProvider {
     AnimaVideoResponseModel? response = await generateVideo(
       config,
       AnimaVideoRequestModel(
+        isInternal: config.isInternal ?? false,
         id: config.animaRequestId,
         template: config.animaTemplate,
         voice: config.animaVoice,
@@ -110,6 +111,7 @@ class AnimaProvider extends BaseProvider {
     for (String chunk in response.videoChunk!) {
       payloads.add(
         DownloadVideoModel(
+          isInternal: config.isInternal ?? false,
           senderId: config.animaSenderId,
           chunk: chunk,
         ),

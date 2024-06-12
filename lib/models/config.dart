@@ -19,6 +19,8 @@ class VaConfig {
   String? profileAccessToken;
   String? profileBotId;
 
+  bool? isInternal;
+
   VaConfig({
     this.webhookAccessToken,
     this.weebHookId,
@@ -34,5 +36,6 @@ class VaConfig {
     this.profilingToken,
     this.profileAccessToken,
     this.profileBotId,
+    this.isInternal = false,
   });
 }
