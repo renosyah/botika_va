@@ -1,3 +1,5 @@
-## 0.0.1
+# Release Notes
 
-* TODO: Describe initial release.
+## v0.1.0
+
+* Initial development release.
