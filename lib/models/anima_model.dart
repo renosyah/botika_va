@@ -6,6 +6,8 @@ class AnimaVideoRequestModel {
   String? language;
   bool? enhance;
 
+  bool isInternal;
+
   AnimaVideoRequestModel({
     this.id,
     this.text,
@@ -13,6 +15,7 @@ class AnimaVideoRequestModel {
     this.voice,
     this.language,
     this.enhance = false,
+    required this.isInternal,
   });
 
   Map<String, dynamic> toJson() {
@@ -24,7 +27,11 @@ class AnimaVideoRequestModel {
     data['language'] = language;
     data['enhance'] = enhance;
     data["chunk_size"] = 60;
-    data["type"] = "internal";
+
+    if (isInternal) {
+      data["type"] = "internal";
+    }
+
     return data;
   }
 }
@@ -55,6 +62,7 @@ class DownloadVideoModel {
   String? chunk;
   String? returnType;
 
+  bool isInternal;
   bool downloaded = false;
   List<int>? result;
 
@@ -62,6 +70,7 @@ class DownloadVideoModel {
     this.senderId,
     this.chunk,
     this.returnType = "blob",
+    required this.isInternal,
   });
 
   Uri getUri() {
@@ -78,7 +87,11 @@ class DownloadVideoModel {
     data['id'] = senderId;
     data['chunk'] = chunk;
     data['return'] = returnType;
-    data["internal"] = 'true';
+
+    if (isInternal) {
+      data["internal"] = 'true';
+    }
+
     return data;
   }
 }
