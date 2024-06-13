@@ -10,7 +10,7 @@ to add the plugin to your `pubspec.yaml`
 ```yaml
 
 dependencies:
-  botika_va : '^0.1.0'
+  botika_va : '^0.1.1'
 
 ```
 
