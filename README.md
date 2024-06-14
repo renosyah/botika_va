@@ -1,6 +1,6 @@
 # Botika VA SDK Flutter
 
-This is the Botika VA SDK Flutter
+A new Flutter plugin of botika Virtual Avatar, providing component to send text and then receive response text and video 
 
 ## Installation
 
@@ -10,7 +10,7 @@ to add the plugin to your `pubspec.yaml`
 ```yaml
 
 dependencies:
-  botika_va : '^0.1.1'
+  botika_va : ^0.1.2
 
 ```
 

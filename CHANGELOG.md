@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.1.2
+
+* Simplified plugin to be universal package
+
 ## v0.1.1
 
 * Fixing bug on build app release

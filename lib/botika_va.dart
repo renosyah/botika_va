@@ -6,13 +6,8 @@ import 'package:botika_va/providers/anima_provider.dart';
 import 'package:botika_va/providers/webhook_provider.dart';
 import 'package:botika_va/services/sse_service.dart';
 import 'package:botika_va/utils/async_queue.dart';
-import 'botika_va_platform_interface.dart';
 
 class BotikaVa implements SseServiceHandler {
-  Future<String?> getPlatformVersion() {
-    return BotikaVaPlatform.instance.getPlatformVersion();
-  }
-
   final SseService _sseService = SseService();
   final WebHookProvider _webHookProvider = WebHookProvider();
   final AnimaProvider _animaProvider = AnimaProvider();
