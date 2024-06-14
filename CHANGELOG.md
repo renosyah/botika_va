@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.1.3
+
+* Try improving score
+
 ## v0.1.2
 
 * Simplified plugin to be universal package

@@ -48,6 +48,8 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     for (DownloadVideoModel r in videos) {
       // get data video by using : r.getUri()
       // header can be obtain from : vaConfig.downloadHeaders!
+
+      r.getUri(); // uri of video
     }
   }
 
