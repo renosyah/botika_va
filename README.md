@@ -5,16 +5,9 @@ A new Flutter plugin of botika Virtual Avatar, providing component to send text 
 ## Installation
 
 To integrate the plugin in your Flutter App, you need
-to add the plugin to your `pubspec.yaml`
+to add this plugin to your `pubspec.yaml`
 
-```yaml
-
-dependencies:
-  botika_va : ^0.1.2
-
-```
-
-## Initialization
+## Code
 
 ```dart
 import 'package:botika_va/handlers/va_handler.dart';
@@ -40,6 +33,13 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
 
     botikaVa.removeSubscriber("MyController");
     botikaVa.dispose();
+  }
+
+  void send() {
+
+    // send message to your VA by using 
+    // sendMessage() function
+    botikaVa.sendMessage("hello...");
   }
 
   @override

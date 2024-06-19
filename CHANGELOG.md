@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.1.4
+
+* Minor update
+
 ## v0.1.3
 
 * Try improving score

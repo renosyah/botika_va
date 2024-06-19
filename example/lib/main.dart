@@ -36,6 +36,10 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     botikaVa.dispose();
   }
 
+  void send() {
+    botikaVa.sendMessage("hello...");
+  }
+
   @override
   void onVaError(String message) {
     // display error message
