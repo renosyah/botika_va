@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     profileBotId: "YOUR_PROFILING_BOT_ID",
 
     // set to false this is for internal only
-    isInternal: true,
+    isInternal: false,
 
     // set to true, for response with text + audio
     // set to false, for response with text + video
