@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.1.5
+
+* Add feature option response for text and voice only
+
 ## v0.1.4
 
 * Minor update

@@ -44,6 +44,51 @@ class AnimaProvider extends BaseProvider {
     return data;
   }
 
+  Future<String?> generateAudio(VaConfig config, String text) async {
+    String? videoUrl;
+
+    AnimaAudioRequestModel payload = AnimaAudioRequestModel(
+      filetype: "mpeg",
+      paidPlan: false,
+      returnType: "url",
+      language: config.animaLanguage,
+      voice: config.animaVoice,
+      text: text,
+    );
+
+    String url = "$baseAnimaUrl/tts";
+    Map<String, dynamic> body = payload.toJson();
+    Map<String, String> header = {
+      "Authorization": "Bearer ${config.animaAccessToken}",
+    };
+
+    Map<String, dynamic>? response = await post(
+      url,
+      body,
+      header: header,
+    );
+    if (response == null) {
+      return null;
+    }
+
+    try {
+      bool ok = response['status'] ?? false;
+
+      if (!ok) {
+        errorMessage = "${response['message']}";
+        return null;
+      }
+
+      videoUrl = response['data'];
+    } catch (e) {
+      //
+      errorMessage = "$e";
+      return null;
+    }
+
+    return videoUrl;
+  }
+
   Future<String?> getVideoUrl(
     VaConfig config,
     DownloadVideoModel payload,

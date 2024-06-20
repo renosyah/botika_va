@@ -93,6 +93,10 @@ class BotikaVa implements SseServiceHandler {
 
   @override
   void onSseEvent(Map<String, dynamic> data) {
+    if (_config == null) {
+      return;
+    }
+
     WebHookModel? msg;
 
     try {
@@ -108,11 +112,34 @@ class BotikaVa implements SseServiceHandler {
     }
 
     for (MessageModel msg in messages) {
-      _taskQueue.add(() async => await _generateResponse(msg));
+      if (_config!.voiceOnly!) {
+        _taskQueue.add(() async => await _generateAudioResponse(msg));
+      } else {
+        _taskQueue.add(() async => await _generateVideoResponse(msg));
+      }
     }
   }
 
-  Future<void> _generateResponse(MessageModel msg) async {
+  Future<void> _generateAudioResponse(MessageModel msg) async {
+    List<String?> generateResults = [];
+    if (_config == null) {
+      return;
+    }
+    List<String> chunks = msg.getChunk();
+    for (String chunk in chunks) {
+      String? url = await _animaProvider.generateAudio(
+        _config!,
+        chunk,
+      );
+      generateResults.add(url);
+    }
+
+    _subscribers.forEach(
+      (_, value) => value.onVaResponseVoice(msg, generateResults),
+    );
+  }
+
+  Future<void> _generateVideoResponse(MessageModel msg) async {
     List<DownloadVideoModel> generateResults = [];
     if (_config == null) {
       return;

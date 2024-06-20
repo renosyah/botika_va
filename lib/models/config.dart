@@ -20,6 +20,7 @@ class VaConfig {
   String? profileBotId;
 
   bool? isInternal;
+  bool? voiceOnly;
 
   VaConfig({
     this.webhookAccessToken,
@@ -37,5 +38,6 @@ class VaConfig {
     this.profileAccessToken,
     this.profileBotId,
     this.isInternal = false,
+    this.voiceOnly = false,
   });
 }

@@ -95,3 +95,41 @@ class DownloadVideoModel {
     return data;
   }
 }
+
+class AnimaAudioRequestModel {
+  String? filetype;
+  String? language;
+  bool? paidPlan;
+  String? returnType;
+  String? text;
+  String? voice;
+
+  AnimaAudioRequestModel({
+    this.filetype = "mpeg",
+    this.paidPlan = false,
+    this.returnType = "url",
+    this.language,
+    this.text,
+    this.voice,
+  });
+
+  AnimaAudioRequestModel.fromJson(Map<String, dynamic> json) {
+    filetype = json['filetype'];
+    language = json['language'];
+    paidPlan = json['paid_plan'];
+    returnType = json['return'];
+    text = json['text'];
+    voice = json['voice'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['filetype'] = filetype;
+    data['language'] = language;
+    data['paid_plan'] = paidPlan;
+    data['return'] = returnType;
+    data['text'] = text;
+    data['voice'] = voice;
+    return data;
+  }
+}
