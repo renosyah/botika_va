@@ -25,8 +25,10 @@ class BotikaVa implements SseServiceHandler {
     _userId = userId;
     _config = config;
 
-    _sseService.addSseSubscriber("botika_va_$_uniqueId", this);
-    _sseService.init(userId: userId, weebHookId: _config!.weebHookId ?? "");
+    if (_config!.useSSE!) {
+      _sseService.addSseSubscriber("botika_va_$_uniqueId", this);
+      _sseService.init(userId: userId, weebHookId: _config!.weebHookId ?? "");
+    }
   }
 
   final Map<String, BotikaVaHandler> _subscribers = <String, BotikaVaHandler>{};
@@ -55,6 +57,10 @@ class BotikaVa implements SseServiceHandler {
   }
 
   void sendMessage(String text) async {
+    if (_config == null) {
+      return;
+    }
+
     if (text.trim().isEmpty) {
       return;
     }
@@ -76,14 +82,19 @@ class BotikaVa implements SseServiceHandler {
     data.message = [msg];
     payload.data = data;
 
-    if (_config != null) {
-      WebHookModel? resp = await _webHookProvider.send(_config!, payload);
-      if (resp != null) {
-        _subscribers.forEach(
-          (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
-        );
-      }
+    WebHookModel? resp = await _webHookProvider.send(_config!, payload);
+    if (resp == null) {
+      _subscribers.forEach(
+        (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
+      );
+      return;
     }
+
+    if (_config!.useSSE!) {
+      return;
+    }
+
+    _handleResponse(resp);
   }
 
   @override
@@ -106,6 +117,10 @@ class BotikaVa implements SseServiceHandler {
       return;
     }
 
+    _handleResponse(msg);
+  }
+
+  void _handleResponse(WebHookModel msg) {
     List<MessageModel> messages = msg.data!.message ?? [];
     if (messages.isEmpty) {
       return;
@@ -157,5 +172,13 @@ class BotikaVa implements SseServiceHandler {
     _subscribers.forEach(
       (_, value) => value.onVaResponse(msg, generateResults),
     );
+  }
+
+  Future<String?> getVideoUrl(DownloadVideoModel data) async {
+    if (_config == null) {
+      return null;
+    }
+
+    return _animaProvider.getVideoUrl(_config!, data);
   }
 }

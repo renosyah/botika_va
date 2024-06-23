@@ -1,5 +1,10 @@
 # Release Notes
 
+## v0.1.6
+
+* Add feature option response for use SSE or non SSE
+* Add feature option response for alternative get video url
+
 ## v0.1.5
 
 * Add feature option response for text and voice only

@@ -97,15 +97,12 @@ class AnimaProvider extends BaseProvider {
 
     payload.returnType = "url";
 
-    String url = "$baseAnimaUrl/video/download";
-    Map<String, dynamic> body = payload.toJson();
     Map<String, String> header = {
       "Authorization": "Bearer ${config.animaAccessToken}",
     };
 
-    Map<String, dynamic>? response = await post(
-      url,
-      body,
+    Map<String, dynamic>? response = await get(
+      payload.getUri().toString(),
       header: header,
     );
     if (response == null) {
@@ -136,6 +133,7 @@ class AnimaProvider extends BaseProvider {
       config,
       AnimaVideoRequestModel(
         isInternal: config.isInternal ?? false,
+        chunkMode: config.chunkMode ?? false,
         id: config.animaRequestId,
         template: config.animaTemplate,
         voice: config.animaVoice,
@@ -148,17 +146,33 @@ class AnimaProvider extends BaseProvider {
       return [];
     }
 
-    if (response.videoChunk == null) {
-      return [];
+    List<DownloadVideoModel> payloads = [];
+    bool notChunkMode = !config.chunkMode!;
+
+    if (notChunkMode) {
+      payloads.add(
+        DownloadVideoModel(
+          isInternal: config.isInternal ?? false,
+          chunkMode: false,
+          senderId: config.animaSenderId,
+          videoId: response.video,
+        ),
+      );
+
+      return payloads;
     }
 
-    List<DownloadVideoModel> payloads = [];
+    if (response.videoChunk == null) {
+      return payloads;
+    }
+
     for (String chunk in response.videoChunk!) {
       payloads.add(
         DownloadVideoModel(
           isInternal: config.isInternal ?? false,
+          chunkMode: true,
           senderId: config.animaSenderId,
-          chunk: chunk,
+          videoId: chunk,
         ),
       );
     }

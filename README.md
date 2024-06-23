@@ -90,8 +90,13 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     // display message get from : msg.value
 
     for (DownloadVideoModel r in videos) {
-      // get data video by using : r.getUri()
+      // get blob data video by using : r.getUri()
       // header can be obtain from : vaConfig.downloadHeaders!
+      Uri uri = r.getUri();
+
+      // or if r.getUri() dont work
+      // you can use this call bellow
+      String? url = await botikaVa.getVideoUrl(r);
     }
   }
 

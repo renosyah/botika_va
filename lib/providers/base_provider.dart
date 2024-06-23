@@ -47,4 +47,37 @@ class BaseProvider {
 
     return responseBody;
   }
+
+  Future<Map<String, dynamic>?> get(
+    String url, {
+    Map<String, String>? header,
+  }) async {
+    Map<String, dynamic>? responseBody;
+    http.Response? res;
+
+    try {
+      res = await http.get(
+        Uri.parse(url),
+        headers: header,
+      );
+    } catch (e) {
+      errorMessage = "$e";
+    }
+
+    if (res == null) {
+      return null;
+    }
+
+    statusCode = res.statusCode;
+
+    try {
+      String bodyString = utf8.decode(res.bodyBytes);
+      responseBody = jsonDecode(bodyString.trim());
+    } catch (e) {
+      errorMessage = "$e";
+      return null;
+    }
+
+    return responseBody;
+  }
 }

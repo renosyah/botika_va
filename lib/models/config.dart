@@ -19,8 +19,12 @@ class VaConfig {
   String? profileAccessToken;
   String? profileBotId;
 
+  // extra shenanigans
+  // dont ask me, its just work around
   bool? isInternal;
   bool? voiceOnly;
+  bool? useSSE;
+  bool? chunkMode;
 
   VaConfig({
     this.webhookAccessToken,
@@ -39,5 +43,7 @@ class VaConfig {
     this.profileBotId,
     this.isInternal = false,
     this.voiceOnly = false,
+    this.useSSE = true,
+    this.chunkMode = false,
   });
 }
