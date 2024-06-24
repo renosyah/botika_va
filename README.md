@@ -46,6 +46,17 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     // set to true, for response with text + audio
     // set to false, for response with text + video
     voiceOnly: true,
+
+    // set to true, and get response from SSE
+    // set to false, and get response from API
+    // some va still use API while other might use SSE
+    // but in the future, all will use web socket
+    useSSE: false,
+
+    // set to true if va support chunk mode
+    // some va might not support it
+    // its wise to set it to false
+    chunkMode: false,
   );
 
   @override
