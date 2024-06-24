@@ -92,8 +92,10 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
 
   @override
   void onVaResponseVoice(MessageModel msg, List<String?> audios) {
-    // display message get from : msg.value
-
+    if (msg.type == "text") {
+      // display message get from : msg.value
+    }
+    
     for (String? url in audios) {
       // url of audio
     }
@@ -101,7 +103,9 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
 
   @override
   void onVaResponse(MessageModel msg, List<DownloadVideoModel> videos) {
-    // display message get from : msg.value
+    if (msg.type == "text") {
+      // display message get from : msg.value
+    }
 
     for (DownloadVideoModel r in videos) {
       // get blob data video by using : r.getUri()
