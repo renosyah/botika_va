@@ -40,7 +40,10 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     profileAccessToken: "YOUR_PROFILING_ACCESS_TOKEN",
     profileBotId: "YOUR_PROFILING_BOT_ID",
 
-    // set to false this is for internal only
+    // just set to false 
+    // this is for internal only
+    // some va only run in internal botika enviroment
+    // maybe...
     isInternal: false,
 
     // set to true, for response with text + audio
