@@ -19,10 +19,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> implements BotikaVaHandler {
   BotikaVa botikaVa = BotikaVa();
   VaConfig vaConfig = VaConfig(
-    webhookAccessToken: "YOUR_WEBHOOK_ACCESS_TOKEN",
-    weebHookId: "WEBHOOK_ID",
-    weebHookRecipientId: "YOUR_WEBHOOK_RECEPIENT_ID",
-    weebHooksenderId: "YOUR_WEBHOOK_SENDER_ID",
+    webHookAccessToken: "YOUR_WEBHOOK_ACCESS_TOKEN",
+    webHookId: "WEBHOOK_ID",
+    webHookRecipientId: "YOUR_WEBHOOK_RECEPIENT_ID",
+    webHooksenderId: "YOUR_WEBHOOK_SENDER_ID",
     animaAccessToken: "YOUR_ANIMA_ACCESS_TOKEN",
     animaRequestId: "YOUR_ANIMA_REQUEST_ID",
     animaTemplate: "AVATAR_TEMPLATE",
@@ -41,12 +41,26 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     profileAccessToken: "YOUR_PROFILING_ACCESS_TOKEN",
     profileBotId: "YOUR_PROFILING_BOT_ID",
 
-    // set to false this is for internal only
-    isInternal: true,
+    // just set to false
+    // this is for internal only
+    // some va only run in internal botika enviroment
+    // maybe...
+    isInternal: false,
 
     // set to true, for response with text + audio
     // set to false, for response with text + video
-    voiceOnly: true,
+    voiceOnly: false,
+
+    // set to true, and get response from SSE
+    // set to false, and get response from API
+    // some va still use API while other might use SSE
+    // but in the future, all will use web socket
+    useSSE: false,
+
+    // set to true if va support chunk mode
+    // some va might not support it
+    // its wise to set it to false
+    chunkMode: false,
   );
 
   @override
@@ -65,8 +79,18 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     botikaVa.dispose();
   }
 
-  void send() {
-    botikaVa.sendMessage("hello...");
+  void send() async {
+    // send message to your VA by using
+    // sendMessage() function
+    await botikaVa.sendMessage("hello...");
+  }
+
+  void stopResponse() {
+    // use this function
+    // to stop current response
+    // warning : you can call this function after
+    // botikaVa.sendMessage function finish proccess
+    botikaVa.stopResponse();
   }
 
   @override
@@ -75,23 +99,41 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
   }
 
   @override
-  void onVaResponse(MessageModel msg, List<DownloadVideoModel> videos) {
-    // display message get from : msg.value
+  void onVaResponseVoice(
+      String responseId, MessageModel msg, List<String?> audios) {
+    if (msg.type == "text") {
+      // display message get from : msg.value
+    } else if (msg.type == "button") {
+      // display buttons get from msg.getButtons()
+    }
 
-    for (DownloadVideoModel r in videos) {
-      // get data video by using : r.getUri()
-      // header can be obtain from : vaConfig.downloadHeaders!
-
-      r.getUri(); // uri of video
+    // list of audio will not be empty
+    // msg.type == "text"
+    for (String? url in audios) {
+      // url of audio
     }
   }
 
   @override
-  void onVaResponseVoice(MessageModel msg, List<String?> audios) {
-    // display message get from : msg.value
+  void onVaResponse(String responseId, MessageModel msg,
+      List<DownloadVideoModel> videos) async {
+    if (msg.type == "text") {
+      // display message get from : msg.value
+    } else if (msg.type == "button") {
+      // display buttons get from msg.getButtons()
 
-    for (String? url in audios) {
-      url; // uri of audio
+    }
+
+    // list of video will not be empty
+    // msg.type == "text"
+    for (DownloadVideoModel r in videos) {
+      // get blob data video by using : r.getUri()
+      // header can be obtain from : vaConfig.downloadHeaders!
+      Uri uri = r.getUri();
+
+      // or if r.getUri() dont work
+      // you can use this call bellow
+      String? url = await botikaVa.getVideoUrl(r);
     }
   }
 

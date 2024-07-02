@@ -1,6 +1,6 @@
 name: botika_va
 description: A new Flutter plugin of botika Virtual Avatar, providing component to send text and then receive response text and video 
-version: 0.1.6
+version: 0.1.7
 homepage: https://github.com/mobiledevbotika/botika_va
 repository: https://github.com/mobiledevbotika/botika_va
 issue_tracker: https://github.com/mobiledevbotika/botika_va/issues

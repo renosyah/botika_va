@@ -5,17 +5,21 @@ import 'package:botika_va/models/webhook_model.dart';
 import 'package:botika_va/providers/anima_provider.dart';
 import 'package:botika_va/providers/webhook_provider.dart';
 import 'package:botika_va/services/sse_service.dart';
-import 'package:botika_va/utils/async_queue.dart';
+import 'package:botika_va/utils/future_queue.dart';
+import 'package:botika_va/utils/util.dart';
 
 class BotikaVa implements SseServiceHandler {
   final SseService _sseService = SseService();
   final WebHookProvider _webHookProvider = WebHookProvider();
   final AnimaProvider _animaProvider = AnimaProvider();
-  final AsyncQueue<void> _taskQueue = AsyncQueue<void>();
+  final FutureQueue<void> _taskQueue = FutureQueue<void>();
 
   String? _userId;
   VaConfig? _config;
   String? _uniqueId;
+
+  String? currentMessageStop;
+  String? currentMessage;
 
   BotikaVa() {
     _uniqueId = "$identityHashCode";
@@ -27,7 +31,7 @@ class BotikaVa implements SseServiceHandler {
 
     if (_config!.useSSE!) {
       _sseService.addSseSubscriber("botika_va_$_uniqueId", this);
-      _sseService.init(userId: userId, weebHookId: _config!.weebHookId ?? "");
+      _sseService.init(userId: userId, weebHookId: _config!.webHookId ?? "");
     }
   }
 
@@ -51,12 +55,22 @@ class BotikaVa implements SseServiceHandler {
     _subscribers.remove(name);
   }
 
+  void stopResponse() {
+    _taskQueue.stop();
+    currentMessageStop = currentMessage;
+  }
+
+  String getUserId() {
+    return _userId!;
+  }
+
   void dispose() {
+    stopResponse();
     _sseService.removeSseSubscriber("botika_va_$_uniqueId");
     _sseService.dispose();
   }
 
-  void sendMessage(String text) async {
+  Future<void> sendMessage(String text) async {
     if (_config == null) {
       return;
     }
@@ -68,10 +82,12 @@ class BotikaVa implements SseServiceHandler {
     WebHookModel payload = WebHookModel(
       time: getTimeStamp(),
     );
+
     WebHookDataModel data = WebHookDataModel(
       recipientId: null,
       senderId: _userId,
     );
+
     MessageModel msg = MessageModel(
       time: payload.time,
       value: text,
@@ -94,7 +110,7 @@ class BotikaVa implements SseServiceHandler {
       return;
     }
 
-    _handleResponse(resp);
+    _handleResponse(idGenerator(), resp);
   }
 
   @override
@@ -117,46 +133,87 @@ class BotikaVa implements SseServiceHandler {
       return;
     }
 
-    _handleResponse(msg);
+    _handleResponse(idGenerator(), msg);
   }
 
-  void _handleResponse(WebHookModel msg) {
+  void _handleResponse(String responseId, WebHookModel msg) {
+    currentMessage = responseId;
+
     List<MessageModel> messages = msg.data!.message ?? [];
     if (messages.isEmpty) {
       return;
     }
 
-    for (MessageModel msg in messages) {
+    for (MessageModel m in messages) {
       if (_config!.voiceOnly!) {
-        _taskQueue.add(() async => await _generateAudioResponse(msg));
-      } else {
-        _taskQueue.add(() async => await _generateVideoResponse(msg));
+        _taskQueue.add(
+          () async => await _generateAudioResponse(
+            responseId,
+            msg.data!.recipientId!,
+            m,
+          ),
+        );
+      }
+
+      //
+      else {
+        _taskQueue.add(
+          () async => await _generateVideoResponse(
+            responseId,
+            msg.data!.recipientId!,
+            m,
+          ),
+        );
       }
     }
+
+    _taskQueue.run();
   }
 
-  Future<void> _generateAudioResponse(MessageModel msg) async {
+  Future<void> _generateAudioResponse(
+      String responseId, String userId, MessageModel msg) async {
     List<String?> generateResults = [];
     if (_config == null) {
       return;
     }
+
+    if (_userId != userId) {
+      return;
+    }
+
     List<String> chunks = msg.getChunk();
     for (String chunk in chunks) {
       String? url = await _animaProvider.generateAudio(
         _config!,
         chunk,
       );
+
+      if (_userId != userId) {
+        return;
+      }
+
       generateResults.add(url);
     }
 
     _subscribers.forEach(
-      (_, value) => value.onVaResponseVoice(msg, generateResults),
+      (_, value) {
+        if (currentMessageStop == responseId) {
+          return;
+        }
+
+        value.onVaResponseVoice(responseId, msg, generateResults);
+      },
     );
   }
 
-  Future<void> _generateVideoResponse(MessageModel msg) async {
+  Future<void> _generateVideoResponse(
+      String responseId, String userId, MessageModel msg) async {
     List<DownloadVideoModel> generateResults = [];
     if (_config == null) {
+      return;
+    }
+
+    if (_userId != userId) {
       return;
     }
 
@@ -166,11 +223,22 @@ class BotikaVa implements SseServiceHandler {
         _config!,
         chunk,
       );
+
+      if (_userId != userId) {
+        return;
+      }
+
       generateResults.addAll(list);
     }
 
     _subscribers.forEach(
-      (_, value) => value.onVaResponse(msg, generateResults),
+      (_, value) {
+        if (currentMessageStop == responseId) {
+          return;
+        }
+
+        value.onVaResponse(responseId, msg, generateResults);
+      },
     );
   }
 

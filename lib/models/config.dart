@@ -1,9 +1,9 @@
 class VaConfig {
   // weebhook
-  String? webhookAccessToken;
-  String? weebHookId;
-  String? weebHookRecipientId;
-  String? weebHooksenderId;
+  String? webHookAccessToken;
+  String? webHookId;
+  String? webHookRecipientId;
+  String? webHooksenderId;
 
   // anima
   String? animaAccessToken;
@@ -27,10 +27,10 @@ class VaConfig {
   bool? chunkMode;
 
   VaConfig({
-    this.webhookAccessToken,
-    this.weebHookId,
-    this.weebHookRecipientId,
-    this.weebHooksenderId,
+    this.webHookAccessToken,
+    this.webHookId,
+    this.webHookRecipientId,
+    this.webHooksenderId,
     this.animaAccessToken,
     this.animaRequestId,
     this.animaTemplate,

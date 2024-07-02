@@ -1,5 +1,11 @@
 # Release Notes
 
+## v0.1.7
+
+* Add feature interupted
+* Add user id validation on reponse
+* Add handle button response
+
 ## v0.1.6
 
 * Add feature option response for use SSE or non SSE

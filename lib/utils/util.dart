@@ -2,11 +2,15 @@ String removeHtmlTagFromString(String? text) {
   if (text == null) {
     return "";
   }
-  var listTag = ["<B>", "</B>"];
-  for (String i in listTag) {
-    text = text.toString().replaceAll(i, "");
+
+  List<String> brs = ['<br>', '<br/>', '<br />'];
+  for (String br in brs) {
+    text = text!.replaceAll(br, '\n');
+    text = text.replaceAll(br.toUpperCase(), '\n');
   }
-  return text!.replaceAll("<BR>", "\n");
+
+  RegExp htmlTagRegExp = RegExp(r'<[^>]*>');
+  return text!.replaceAll(htmlTagRegExp, '');
 }
 
 List splice(List list, int index, [num howMany = 0, dynamic elements]) {
@@ -25,4 +29,9 @@ String printDuration(Duration duration) {
   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60).abs());
   //return "$negativeSign${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   return "$twoDigitMinutes:$twoDigitSeconds";
+}
+
+String idGenerator() {
+  DateTime now = DateTime.now();
+  return now.microsecondsSinceEpoch.toString();
 }

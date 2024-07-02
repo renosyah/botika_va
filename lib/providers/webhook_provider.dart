@@ -6,7 +6,7 @@ class WebHookProvider extends BaseProvider {
   Future<WebHookModel?> send(VaConfig config, WebHookModel payload) async {
     WebHookModel? data;
 
-    payload.id = config.weebHookId;
+    payload.id = config.webHookId;
 
     if (payload.data != null) {
       payload.data!.recipientId = null;
@@ -15,7 +15,7 @@ class WebHookProvider extends BaseProvider {
     String url = "https://webhook.botika.online/webhook/";
     Map<String, dynamic> body = payload.toJson();
     Map<String, String> header = {
-      "Authorization": "Bearer ${config.webhookAccessToken}",
+      "Authorization": "Bearer ${config.webHookAccessToken}",
     };
 
     Map<String, dynamic>? response = await post(
