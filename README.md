@@ -98,8 +98,7 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
   }
 
   @override
-  void onVaResponseVoice(
-      String responseId, MessageModel msg, List<String?> audios) {
+  void onVaResponseVoice(String responseId, MessageModel msg, List<String?> audios) {
     if (msg.type == "text") {
       // display message get from : msg.value
     } else if (msg.type == "button") {
@@ -114,8 +113,7 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
   }
 
   @override
-  void onVaResponse(String responseId, MessageModel msg,
-      List<DownloadVideoModel> videos) async {
+  void onVaResponse(String responseId, MessageModel msg, List<DownloadVideoModel> videos) async {
     if (msg.type == "text") {
       // display message get from : msg.value
     } else if (msg.type == "button") {
