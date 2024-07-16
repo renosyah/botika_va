@@ -132,8 +132,7 @@ class AnimaProvider extends BaseProvider {
     AnimaVideoResponseModel? response = await generateVideo(
       config,
       AnimaVideoRequestModel(
-        isInternal: config.isInternal ?? false,
-        chunkMode: config.chunkMode ?? false,
+        requestVideoType: config.requestVideoType!,
         id: config.animaRequestId,
         template: config.animaTemplate,
         voice: config.animaVoice,
@@ -147,15 +146,14 @@ class AnimaProvider extends BaseProvider {
     }
 
     List<DownloadVideoModel> payloads = [];
-    bool notChunkMode = !config.chunkMode!;
 
-    if (notChunkMode) {
+    if (config.downloadVideoMode == DownloadVideoMode.video) {
       payloads.add(
         DownloadVideoModel(
-          isInternal: config.isInternal ?? false,
-          chunkMode: false,
           senderId: config.animaSenderId,
           videoId: response.video,
+          downloadVideoMode: config.downloadVideoMode!,
+          isInternal: config.internalDownload!,
         ),
       );
 
@@ -169,8 +167,8 @@ class AnimaProvider extends BaseProvider {
     for (String chunk in response.videoChunk!) {
       payloads.add(
         DownloadVideoModel(
-          isInternal: config.isInternal ?? false,
-          chunkMode: true,
+          downloadVideoMode: config.downloadVideoMode!,
+          isInternal: config.internalDownload!,
           senderId: config.animaSenderId,
           videoId: chunk,
         ),

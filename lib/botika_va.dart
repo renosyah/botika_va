@@ -99,14 +99,14 @@ class BotikaVa implements SseServiceHandler {
     payload.data = data;
 
     WebHookModel? resp = await _webHookProvider.send(_config!, payload);
-    if (resp == null) {
-      _subscribers.forEach(
-        (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
-      );
+    if (_config!.useSSE!) {
       return;
     }
 
-    if (_config!.useSSE!) {
+    if (resp == null) {
+      _subscribers.forEach(
+         (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
+      );
       return;
     }
 

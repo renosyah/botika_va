@@ -1,3 +1,5 @@
+import 'package:botika_va/models/config.dart';
+
 class AnimaVideoRequestModel {
   String? id;
   String? text;
@@ -6,8 +8,7 @@ class AnimaVideoRequestModel {
   String? language;
   bool? enhance;
 
-  bool isInternal;
-  bool chunkMode;
+  RequestVideoType requestVideoType;
 
   AnimaVideoRequestModel({
     this.id,
@@ -16,8 +17,7 @@ class AnimaVideoRequestModel {
     this.voice,
     this.language,
     this.enhance = false,
-    required this.isInternal,
-    required this.chunkMode,
+    required this.requestVideoType,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,13 +29,16 @@ class AnimaVideoRequestModel {
     data['language'] = language;
     data['enhance'] = enhance;
 
-    if (isInternal) {
-      data["type"] = "internal";
-    }
-
-    if (chunkMode) {
-      data["type"] = "chunk";
-      data["chunk_size"] = 60;
+    switch (requestVideoType) {
+      case RequestVideoType.chunk:
+        data["type"] = "chunk";
+        data["chunk_size"] = 60;
+        break;
+      case RequestVideoType.internal:
+        data["type"] = "internal";
+        break;
+      case RequestVideoType.none:
+        break;
     }
 
     return data;
@@ -69,14 +72,14 @@ class DownloadVideoModel {
   String? returnType;
 
   bool isInternal;
-  bool chunkMode;
+  DownloadVideoMode downloadVideoMode;
 
   DownloadVideoModel({
     this.senderId,
     this.videoId,
     this.returnType = "blob",
     required this.isInternal,
-    required this.chunkMode,
+    required this.downloadVideoMode,
   });
 
   Uri getUri() {
@@ -92,10 +95,13 @@ class DownloadVideoModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = senderId;
 
-    if (chunkMode) {
-      data['chunk'] = videoId;
-    } else {
-      data['video'] = videoId;
+    switch (downloadVideoMode) {
+      case DownloadVideoMode.chunk:
+        data['chunk'] = videoId;
+        break;
+      case DownloadVideoMode.video:
+        data['video'] = videoId;
+        break;
     }
 
     data['return'] = returnType;

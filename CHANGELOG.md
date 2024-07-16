@@ -1,5 +1,10 @@
 # Release Notes
 
+## v0.1.8
+
+* Change param in config
+* fix issue of VA keep returning error if SSE set to true
+
 ## v0.1.7
 
 * Add feature interupted

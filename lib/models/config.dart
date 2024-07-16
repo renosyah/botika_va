@@ -1,3 +1,7 @@
+enum RequestVideoType { chunk, internal, none }
+
+enum DownloadVideoMode { chunk, video }
+
 class VaConfig {
   // weebhook
   String? webHookAccessToken;
@@ -21,10 +25,12 @@ class VaConfig {
 
   // extra shenanigans
   // dont ask me, its just work around
-  bool? isInternal;
   bool? voiceOnly;
   bool? useSSE;
-  bool? chunkMode;
+
+  RequestVideoType? requestVideoType;
+  DownloadVideoMode? downloadVideoMode;
+  bool? internalDownload;
 
   VaConfig({
     this.webHookAccessToken,
@@ -41,9 +47,10 @@ class VaConfig {
     this.profilingToken,
     this.profileAccessToken,
     this.profileBotId,
-    this.isInternal = false,
     this.voiceOnly = false,
     this.useSSE = true,
-    this.chunkMode = false,
+    this.requestVideoType = RequestVideoType.none,
+    this.downloadVideoMode = DownloadVideoMode.video,
+    this.internalDownload = false,
   });
 }

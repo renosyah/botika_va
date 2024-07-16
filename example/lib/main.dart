@@ -41,12 +41,6 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     profileAccessToken: "YOUR_PROFILING_ACCESS_TOKEN",
     profileBotId: "YOUR_PROFILING_BOT_ID",
 
-    // just set to false
-    // this is for internal only
-    // some va only run in internal botika enviroment
-    // maybe...
-    isInternal: false,
-
     // set to true, for response with text + audio
     // set to false, for response with text + video
     voiceOnly: false,
@@ -57,10 +51,10 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     // but in the future, all will use web socket
     useSSE: false,
 
-    // set to true if va support chunk mode
-    // some va might not support it
-    // its wise to set it to false
-    chunkMode: false,
+    // keep all this param default fow now
+    requestVideoType: RequestVideoType.none,
+    downloadVideoMode: DownloadVideoMode.video,
+    internalDownload: false,
   );
 
   @override
