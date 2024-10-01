@@ -5,10 +5,12 @@ import 'package:botika_va/models/webhook_model.dart';
 import 'package:botika_va/providers/anima_provider.dart';
 import 'package:botika_va/providers/webhook_provider.dart';
 import 'package:botika_va/services/sse_service.dart';
+import 'package:botika_va/services/websocket_service.dart';
 import 'package:botika_va/utils/future_queue.dart';
 import 'package:botika_va/utils/util.dart';
 
-class BotikaVa implements SseServiceHandler {
+class BotikaVa implements SseServiceHandler, WebsocketHandler {
+  final WebSocketService _webSocketService = WebSocketService();
   final SseService _sseService = SseService();
   final WebHookProvider _webHookProvider = WebHookProvider();
   final AnimaProvider _animaProvider = AnimaProvider();
@@ -29,9 +31,23 @@ class BotikaVa implements SseServiceHandler {
     _userId = userId;
     _config = config;
 
-    if (_config!.useSSE!) {
+    if (_config!.responseVaType == ResponseVaType.sse) {
       _sseService.addSseSubscriber("botika_va_$_uniqueId", this);
       _sseService.init(userId: userId, weebHookId: _config!.webHookId ?? "");
+    } else
+
+    //
+    if (_config!.responseVaType == ResponseVaType.socket) {
+      _webSocketService.disconnectSocket();
+
+      if (_config!.jwt == null) {
+        return;
+      }
+
+      String channel = toBase64("${_config!.webHookId}:$_userId");
+
+      _webSocketService.addWebSocketSubscriber("botika_va_$_uniqueId", this);
+      _webSocketService.connectSocket(channel, _config!.jwt!);
     }
   }
 
@@ -66,8 +82,12 @@ class BotikaVa implements SseServiceHandler {
 
   void dispose() {
     stopResponse();
+
     _sseService.removeSseSubscriber("botika_va_$_uniqueId");
+    _webSocketService.removeWebSocketSubscriber("botika_va_$_uniqueId");
+
     _sseService.dispose();
+    _webSocketService.dispose();
   }
 
   Future<void> sendMessage(String text) async {
@@ -99,13 +119,13 @@ class BotikaVa implements SseServiceHandler {
     payload.data = data;
 
     WebHookModel? resp = await _webHookProvider.send(_config!, payload);
-    if (_config!.useSSE!) {
+    if (_config!.responseVaType != ResponseVaType.api) {
       return;
     }
 
     if (resp == null) {
       _subscribers.forEach(
-         (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
+        (_, value) => value.onVaError(_webHookProvider.errorMessage ?? ""),
       );
       return;
     }
@@ -147,22 +167,47 @@ class BotikaVa implements SseServiceHandler {
     for (MessageModel m in messages) {
       if (_config!.voiceOnly!) {
         _taskQueue.add(
-          () async => await _generateAudioResponse(
-            responseId,
-            msg.data!.recipientId!,
-            m,
-          ),
+          () async {
+            List<String?> generateResults = await _generateAudioResponse(
+              responseId,
+              msg.data!.recipientId!,
+              m,
+            );
+
+            _subscribers.forEach(
+              (_, value) {
+                if (currentMessageStop == responseId) {
+                  return;
+                }
+
+                value.onVaResponseVoice(responseId, m, generateResults);
+              },
+            );
+          },
         );
       }
 
       //
       else {
         _taskQueue.add(
-          () async => await _generateVideoResponse(
-            responseId,
-            msg.data!.recipientId!,
-            m,
-          ),
+          () async {
+            List<DownloadVideoModel> generateResults =
+                await _generateVideoResponse(
+              responseId,
+              msg.data!.recipientId!,
+              m,
+            );
+
+            _subscribers.forEach(
+              (_, value) {
+                if (currentMessageStop == responseId) {
+                  return;
+                }
+
+                value.onVaResponse(responseId, m, generateResults);
+              },
+            );
+          },
         );
       }
     }
@@ -170,15 +215,15 @@ class BotikaVa implements SseServiceHandler {
     _taskQueue.run();
   }
 
-  Future<void> _generateAudioResponse(
+  Future<List<String?>> _generateAudioResponse(
       String responseId, String userId, MessageModel msg) async {
     List<String?> generateResults = [];
     if (_config == null) {
-      return;
+      return generateResults;
     }
 
     if (_userId != userId) {
-      return;
+      return generateResults;
     }
 
     List<String> chunks = msg.getChunk();
@@ -189,32 +234,24 @@ class BotikaVa implements SseServiceHandler {
       );
 
       if (_userId != userId) {
-        return;
+        return generateResults;
       }
 
       generateResults.add(url);
     }
 
-    _subscribers.forEach(
-      (_, value) {
-        if (currentMessageStop == responseId) {
-          return;
-        }
-
-        value.onVaResponseVoice(responseId, msg, generateResults);
-      },
-    );
+    return generateResults;
   }
 
-  Future<void> _generateVideoResponse(
+  Future<List<DownloadVideoModel>> _generateVideoResponse(
       String responseId, String userId, MessageModel msg) async {
     List<DownloadVideoModel> generateResults = [];
     if (_config == null) {
-      return;
+      return generateResults;
     }
 
     if (_userId != userId) {
-      return;
+      return generateResults;
     }
 
     List<String> chunks = msg.getChunk();
@@ -225,21 +262,13 @@ class BotikaVa implements SseServiceHandler {
       );
 
       if (_userId != userId) {
-        return;
+        return generateResults;
       }
 
       generateResults.addAll(list);
     }
 
-    _subscribers.forEach(
-      (_, value) {
-        if (currentMessageStop == responseId) {
-          return;
-        }
-
-        value.onVaResponse(responseId, msg, generateResults);
-      },
-    );
+    return generateResults;
   }
 
   Future<String?> getVideoUrl(DownloadVideoModel data) async {
@@ -248,5 +277,31 @@ class BotikaVa implements SseServiceHandler {
     }
 
     return _animaProvider.getVideoUrl(_config!, data);
+  }
+
+  void customResponse(WebHookModel msg) {
+    _handleResponse(idGenerator(), msg);
+  }
+
+  Future<List<DownloadVideoModel>> generateVideoResponse(
+      VaConfig config, String text) async {
+    List<DownloadVideoModel> generateResults = [];
+
+    MessageModel msg = MessageModel(type: "text", value: text);
+
+    List<String> chunks = msg.getChunk();
+    for (String chunk in chunks) {
+      List<DownloadVideoModel> list =
+          await _animaProvider.generateVideos(config, chunk);
+
+      generateResults.addAll(list);
+    }
+
+    return generateResults;
+  }
+
+  @override
+  void onWebsocketMessage(WebHookModel msg) {
+    _handleResponse(idGenerator(), msg);
   }
 }

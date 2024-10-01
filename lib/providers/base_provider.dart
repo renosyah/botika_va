@@ -1,4 +1,5 @@
 import 'dart:convert';
+//import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class BaseProvider {
@@ -30,6 +31,10 @@ class BaseProvider {
     } catch (e) {
       errorMessage = "$e";
     }
+
+    // log("luna - $body");
+    // log("luna - $header");
+    // log("luna - ${res!.body}");
 
     if (res == null) {
       return null;
@@ -63,6 +68,10 @@ class BaseProvider {
     } catch (e) {
       errorMessage = "$e";
     }
+
+    // log("luna - $url");
+    // log("luna - $header");
+    // log("luna - ${res!.body}");
 
     if (res == null) {
       return null;

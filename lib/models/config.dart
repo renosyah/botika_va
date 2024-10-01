@@ -1,6 +1,10 @@
+import 'package:botika_va/providers/jwt_provider.dart';
+
 enum RequestVideoType { chunk, internal, none }
 
 enum DownloadVideoMode { chunk, video }
+
+enum ResponseVaType { api, sse, socket }
 
 class VaConfig {
   // weebhook
@@ -23,10 +27,13 @@ class VaConfig {
   String? profileAccessToken;
   String? profileBotId;
 
+  // socket
+  String? jwt;
+
   // extra shenanigans
   // dont ask me, its just work around
   bool? voiceOnly;
-  bool? useSSE;
+  ResponseVaType responseVaType;
 
   RequestVideoType? requestVideoType;
   DownloadVideoMode? downloadVideoMode;
@@ -48,9 +55,28 @@ class VaConfig {
     this.profileAccessToken,
     this.profileBotId,
     this.voiceOnly = false,
-    this.useSSE = true,
+    this.responseVaType = ResponseVaType.api,
     this.requestVideoType = RequestVideoType.none,
     this.downloadVideoMode = DownloadVideoMode.video,
     this.internalDownload = false,
   });
+
+  Future<bool> login() async {
+    if (webHookAccessToken == null || animaAccessToken == null) {
+      return false;
+    }
+
+    JwtProvider jwtProvider = JwtProvider();
+    String? result = await jwtProvider.getJwt(
+      webHookAccessToken,
+      animaAccessToken,
+    );
+    if (result == null) {
+      return false;
+    }
+
+    this.jwt = result;
+
+    return true;
+  }
 }

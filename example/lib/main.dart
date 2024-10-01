@@ -45,11 +45,10 @@ class _MyAppState extends State<MyApp> implements BotikaVaHandler {
     // set to false, for response with text + video
     voiceOnly: false,
 
-    // set to true, and get response from SSE
-    // set to false, and get response from API
-    // some va still use API while other might use SSE
-    // but in the future, all will use web socket
-    useSSE: false,
+    // ResponseVaType.api
+    // ResponseVaType.sse
+    // ResponseVaType.socket
+    responseVaType: ResponseVaType.api,
 
     // keep all this param default fow now
     requestVideoType: RequestVideoType.none,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 String removeHtmlTagFromString(String? text) {
   if (text == null) {
     return "";
@@ -34,4 +36,9 @@ String printDuration(Duration duration) {
 String idGenerator() {
   DateTime now = DateTime.now();
   return now.microsecondsSinceEpoch.toString();
+}
+
+String toBase64(String val) {
+  List<int> bytes = utf8.encode(val);
+  return base64.encode(bytes);
 }

@@ -12,7 +12,12 @@ class WebHookProvider extends BaseProvider {
       payload.data!.recipientId = null;
     }
 
-    String url = "https://webhook.botika.online/webhook/";
+    String? url = "https://webhook.botika.online/webhook/";
+
+    if (config.responseVaType == ResponseVaType.socket) {
+      url = "${url}webhook_push.php?method=socket";
+    }
+
     Map<String, dynamic> body = payload.toJson();
     Map<String, String> header = {
       "Authorization": "Bearer ${config.webHookAccessToken}",
